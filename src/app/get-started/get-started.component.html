@@ -1,0 +1,8 @@
+<span>Pick the date you want to finish reading by:</span>
+<input
+    type="text"
+    ngbDatepicker
+    #d="ngbDatepicker"
+    (click)="d.toggle()"
+    [minDate]="{year: 2018, month: 10, day: 15}"
+    (dateSelect)="onDateSelect($event)"/>
