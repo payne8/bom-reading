@@ -8,14 +8,14 @@ export class LocalstorageService {
 
   constructor() {}
 
-  get(key: string) {
+  public get(key: string): any {
     let storage: any = localStorage.getItem(this.serviceKey);
     if (storage) {
       return JSON.parse(storage)[key];
     }
   }
 
-  set(key: string, value: any) {
+  public set(key: string, value: any) {
     let storageString = localStorage.getItem(this.serviceKey);
     let storage: any;
     if (!storageString) {
@@ -25,5 +25,9 @@ export class LocalstorageService {
     }
     storage[key] = value;
     localStorage.setItem(this.serviceKey, JSON.stringify(storage));
+  }
+
+  public resetApp() {
+    localStorage.clear();
   }
 }

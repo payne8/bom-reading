@@ -1,8 +1,42 @@
+<br />
+<span><ngb-progressbar [showValue]="true" type="info" [value]="curChapter" [max]="selectedBook.totalChapterCount"></ngb-progressbar></span>
+<br />
 <span>Pick the date you want to finish reading by:</span>
+<br />
+<br />
 <input
     type="text"
     ngbDatepicker
-    #d="ngbDatepicker"
-    (click)="d.toggle()"
+    #dp="ngbDatepicker"
+    [(ngModel)]="goalDate"
+    (click)="dp.toggle()"
     [minDate]="{year: 2018, month: 10, day: 15}"
+    [footerTemplate]="footerTemplate"
     (dateSelect)="onDateSelect($event)"/>
+<br />
+<br />
+<br />
+
+<div class="row">
+  <div class="col">
+    <div ngbDropdown class="d-inline-block">
+      <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>{{selectedBookTitle}}</button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button class="dropdown-item" *ngFor="let book of supported; let i = index" (click)="selectBook(book)">{{book}}</button>
+        <!-- <button class="dropdown-item">Another Action</button>
+        <button class="dropdown-item">Something else is here</button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<br />
+<br />
+<br />
+<button (click)="onClearApp()">Reset App</button>
+
+<ng-template #footerTemplate>
+  <hr class="my-0">
+  <button class="btn btn-primary btn-sm m-2 float-left" (click)="dp.navigateTo(); selectToday();">Today</button>
+  <button class="btn btn-secondary btn-sm m-2 float-right" (click)="dp.close()">Close</button>
+</ng-template>
