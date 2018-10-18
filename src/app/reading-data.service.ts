@@ -60,7 +60,7 @@ export class ReadingDataService {
   }
 
   public setGoalDate(newGoalDate: NgbDateStruct, bookTitle: String=BOM.title) {
-    this.setRequestedBookProperty(bookTitle, goalDate, newGoalDate);
+    this.setRequestedBookProperty(bookTitle, 'goalDate', newGoalDate);
   }
 
   public getCurChapter(bookTitle: String=BOM.title) {
