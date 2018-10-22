@@ -61,13 +61,26 @@
 
 <br />
 
-<div *ngFor="let part of selectedBook.parts; let i = index">
+<!-- <div *ngFor="let part of selectedBook.parts; let i = index">
   <p class="h5 text-left">{{part.name}}</p>
   <div class="chapters-container">
     <div class="chapter-container"
       *ngFor="let chapter of part.chapterArray;"
       (click)="setProgress(selectedBook.getChapterPosition(part.name, chapter))">
       {{chapter}}
+    </div>
+  </div>
+</div> -->
+
+<div *ngFor="let day of readingDays; let i = index">
+  <p class="h5 text-left">
+    {{day.date.year}}-{{pad(day.date.month, 2)}}-{{pad(day.date.day, 2)}}
+  </p>
+  <div class="chapters-container">
+    <div class="chapter-container text-center {{isRead(chapter.partName, chapter.chapter) ? 'already-read' : isLate(day.date) ? 'behind-reading' : isToday(day.date) ? 'read-today' : ''}}"
+      *ngFor="let chapter of day.chapters;"
+      (click)="setProgress(selectedBook.getChapterPosition(chapter.partName, chapter.chapter))">
+      {{chapter.partName}} {{chapter.chapter}}
     </div>
   </div>
 </div>

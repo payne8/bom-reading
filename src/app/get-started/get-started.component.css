@@ -19,6 +19,18 @@
   align-items: center;
 }
 
+.already-read {
+  background-color: rgba(0,0,0,0.6);
+}
+
+.read-today {
+  background-color: rgba(0,255,0,0.6);
+}
+
+.behind-reading {
+  background-color: rgba(255,0,0,0.6);
+}
+
 .date-picking-container {
   display: flex;
   justify-content: space-between;

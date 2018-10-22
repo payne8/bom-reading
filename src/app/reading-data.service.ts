@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer, Subject } from 'rxjs';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { LocalstorageService } from './localstorage.service';
 import { IBook, IBookPart, IBookProgress } from './DataStructure';
-import { BOM, SUPPORTED } from './books/books';
+import { BOM, SUPPORTED, Book } from './books/books';
 
 @Injectable({
   providedIn: 'root'
@@ -82,6 +82,35 @@ export class ReadingDataService {
 
   public setCurChapter(newCurChapter: number, bookKey: string=BOM.title) {
     return this.setRequestedBookProperty(bookKey, 'curChapter', newCurChapter);
+  }
+
+  public getReadingDates(startDate: NgbDate, goalDate: NgbDate, book: Book) {
+    let oneDay: number = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+    let startDateObj: Date = new Date(startDate.year, startDate.month - 1, startDate.day);
+    let goalDateObj: Date = new Date(goalDate.year, goalDate.month - 1, goalDate.day);
+    let diffDays: number = Math.round(Math.abs((startDateObj.getTime() - goalDateObj.getTime())/(oneDay)));
+    let chaptersPerDay: number;
+    if (diffDays !== 0) {
+      chaptersPerDay = book.totalChapterCount / diffDays;
+    } else {
+      chaptersPerDay = book.totalChapterCount;
+    }
+    let readingDates = [];
+    let curChapter: number = 1;
+    for (var d = new Date(startDateObj); d <= goalDateObj; d.setDate(d.getDate() + 1)) {
+
+      let readingDate = {
+        date: {
+          year: d.getFullYear(),
+          month: d.getMonth() + 1,
+          day: d.getDate(),
+        },
+        chapters: book.getChaptersFromPosition(curChapter, chaptersPerDay)
+      };
+      readingDates.push(readingDate);
+      curChapter = curChapter + chaptersPerDay;
+    }
+    return readingDates;
   }
 
   private retriveRequestedBookProperty(bookKey: string, property: string) {

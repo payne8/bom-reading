@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgbDate, NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 import { LocalstorageService } from '../localstorage.service';
 import { ReadingDataService } from '../reading-data.service';
-import { IBook, IBookProgress } from '../DataStructure';
+import { IBook, IBookProgress, IChapter } from '../DataStructure';
 import { BOM, SUPPORTED, BOOKINFO, Book } from '../books/books';
 declare var location;
 
@@ -20,13 +20,14 @@ export class GetStartedComponent implements OnInit {
   public selectedBook: Book;
   public supported: {key:string,label:string}[] = SUPPORTED;
   public minEndDate: NgbDate;
+  public readingDays: IChapter[];
 
   constructor(
     private calendar: NgbCalendar,
     private localstorageService: LocalstorageService,
     private readingDataService: ReadingDataService
   ) {
-    this. minEndDate = NgbDate.from({
+    this.minEndDate = NgbDate.from({
      year: new Date().getFullYear(),
      month: new Date().getMonth() + 1,
      day: new Date().getDate(),
@@ -43,6 +44,7 @@ export class GetStartedComponent implements OnInit {
     this.goalDate = NgbDate.from(this.readingDataService.getGoalDate(this.selectedBookKey));
     this.selectedBook = new Book(BOOKINFO[this.selectedBookKey]);
     this.curChapter = this.readingDataService.getCurChapter(this.selectedBookKey);
+    this.readingDays = this.readingDataService.getReadingDates(this.startDate, this.goalDate, this.selectedBook);
   }
 
   onDateSelect(pickedDate: NgbDate) {
@@ -55,6 +57,7 @@ export class GetStartedComponent implements OnInit {
       newDate = NgbDate.from(pickedDate);
     }
     this.goalDate = newDate;
+    this.readingDays = this.readingDataService.getReadingDates(this.startDate, this.goalDate, this.selectedBook);
   }
 
   onStartDateSelect(pickedDate: NgbDate) {
@@ -67,6 +70,7 @@ export class GetStartedComponent implements OnInit {
       newDate = NgbDate.from(pickedDate);
     }
     this.startDate = newDate;
+    this.readingDays = this.readingDataService.getReadingDates(this.startDate, this.goalDate, this.selectedBook);
   }
 
   onClearApp() {
@@ -97,6 +101,18 @@ export class GetStartedComponent implements OnInit {
     z = z || '0';
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
+
+  isLate(date: NgbDateStruct): boolean {
+    return NgbDate.from(date).before(this.minEndDate);
+  }
+
+  isRead(partName: string, chapter: number): boolean {
+    return this.curChapter >= this.selectedBook.getChapterPosition(partName, chapter)
+  }
+
+  isToday(date: NgbDateStruct): boolean {
+    return NgbDate.from(date).equals(this.minEndDate);
   }
 
 }

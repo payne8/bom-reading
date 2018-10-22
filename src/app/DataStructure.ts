@@ -7,9 +7,9 @@ interface IBookPart {
 }
 
 interface IBook {
+  key: string;
   title: string;
   parts: IBookPart[];
-
 }
 
 interface IBookProgress {
@@ -24,8 +24,15 @@ interface IKeyLabel {
   label: string;
 }
 
+interface IChapter {
+  partName: string;
+  chapter: number;
+}
+
 export {
   IBook,
   IBookPart,
-  IBookProgress
+  IBookProgress,
+  IChapter,
+  IKeyLabel
 }

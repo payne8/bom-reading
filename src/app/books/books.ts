@@ -1,4 +1,4 @@
-import { IBook, IBookPart } from '../DataStructure';
+import { IBook, IBookPart, IChapter } from '../DataStructure';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 const BOMInfo: IBook = {
@@ -223,7 +223,7 @@ const SUPPORTED = [
   }
 ];
 
-const BOOKINFO: {[title: string]: Book} = {
+const BOOKINFO: {[title: string]: IBook} = {
   'The Book of Mormon': BOMInfo,
   'The Old Testament': OTInfo,
   'The New Testament': NTInfo,
@@ -241,6 +241,7 @@ class Book {
   public title: string;
   public parts: IBookPart[];
   public totalChapterCount: number;
+  public chapters: IChapter[];
 
   constructor(private book: IBook) {
     this.key = book.key;
@@ -248,10 +249,21 @@ class Book {
     this.parts = book.parts;
     this.totalChapterCount = this.parts
       .map(part => {
-        part.chapterArray = Array(part.chapters).fill().map((x,i) => return i + 1;);
+        part.chapterArray = Array(part.chapters).fill(0).map((x,i) => {return i + 1;});
         return part.chapters;
       })
       .reduce((accumulator: number, chapters: number) => accumulator + chapters);
+    this.chapters = [];
+    for (let i in this.parts) {
+      let part: IBookPart = this.parts[i];
+      let curChapters: IChapter[] = part.chapterArray.map((chapter: number) => {
+        return {
+          partName: part.name,
+          chapter: chapter
+        };
+      });
+      this.chapters = this.chapters.concat(curChapters);
+    }
   }
 
   getChapterPosition(part: string, chapter: number) {
@@ -266,14 +278,33 @@ class Book {
     }
     return position;
   }
+
+  getChaptersFromPosition(startPosition: number, count: number=1): IChapter[] {
+    if (startPosition >= this.totalChapterCount) {
+      return [
+        {
+          partName: this.parts[this.parts.length - 1].name,
+          chapter: this.parts[this.parts.length - 1].chapters
+        }
+      ];
+    } else {
+      return this.chapters.slice(startPosition - 1, (startPosition - 1) + count);
+    }
+  }
 }
 
 const BOM: Book = new Book(BOMInfo);
 
-console.log(`Introduction and Witnesses, 1: ${BOM.getChapterPosition('Introduction and Witnesses', 1)}`);
-console.log(`1 Nephi, 1: ${BOM.getChapterPosition('1 Nephi', 1)}`);
-console.log(`Jarom, 1: ${BOM.getChapterPosition('Jarom', 1)}`);
-console.log(`Mosiah, 22: ${BOM.getChapterPosition('Mosiah', 22)}`);
+// console.log(BOM.chapters);
+// console.log(BOM.getChaptersFromPosition(1));
+// console.log(BOM.getChaptersFromPosition(82));
+// console.log(BOM.getChaptersFromPosition(82, 5));
+// console.log(BOM.getChaptersFromPosition(1, 5));
+
+// console.log(`Introduction and Witnesses, 1: ${BOM.getChapterPosition('Introduction and Witnesses', 1)}`);
+// console.log(`1 Nephi, 1: ${BOM.getChapterPosition('1 Nephi', 1)}`);
+// console.log(`Jarom, 1: ${BOM.getChapterPosition('Jarom', 1)}`);
+// console.log(`Mosiah, 22: ${BOM.getChapterPosition('Mosiah', 22)}`);
 
 export {
   BOM,
