@@ -2,6 +2,7 @@ import { IBook, IBookPart } from '../DataStructure';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 const BOMInfo: IBook = {
+  key:'BOM',
   title: 'The Book of Mormon',
   parts: [
     {
@@ -72,6 +73,7 @@ const BOMInfo: IBook = {
 };
 
 const DCInfo: IBook = {
+  key:'DC',
   title: 'The Doctrine and Covenants',
   parts: [
     {
@@ -94,6 +96,7 @@ const DCInfo: IBook = {
 };
 
 const PGInfo: IBook = {
+  key:'POGP',
   title: 'The Perl of Great Price',
   parts: [
     {
@@ -128,6 +131,7 @@ const PGInfo: IBook = {
 };
 
 const OTInfo: IBook = {
+  key:'OT',
   title: 'The Old Testament',
   parts: [
     {
@@ -162,6 +166,7 @@ const OTInfo: IBook = {
 };
 
 const NTInfo: IBook = {
+  key:'NT',
   title: 'The New Testament',
   parts: [
     {
@@ -196,36 +201,79 @@ const NTInfo: IBook = {
 };
 
 const SUPPORTED = [
-  'The Book of Mormon',
-  'The Old Testament',
-  'The New Testament',
-  'The Perl of Great Price',
-  'The Doctrine and Covenants',
+  {
+    key:'BOM',
+    label: 'The Book of Mormon'
+  },
+  {
+    key:'OT',
+    label: 'The Old Testament'
+  },
+  {
+    key:'NT',
+    label: 'The New Testament'
+  },
+  {
+    key:'POGP',
+    label: 'The Perl of Great Price'
+  },
+  {
+    key:'DC',
+    label: 'The Doctrine and Covenants'
+  }
 ];
 
-const BOOKINFO = {
+const BOOKINFO: {[title: string]: Book} = {
   'The Book of Mormon': BOMInfo,
   'The Old Testament': OTInfo,
   'The New Testament': NTInfo,
   'The Perl of Great Price': PGInfo,
-  'The Doctrine and Covenants': DCInfo
+  'The Doctrine and Covenants': DCInfo,
+  'BOM': BOMInfo,
+  'OT': OTInfo,
+  'NT': NTInfo,
+  'POGP': PGInfo,
+  'DC': DCInfo
 };
 
 class Book {
-  public title: String;
+  public key: string;
+  public title: string;
   public parts: IBookPart[];
   public totalChapterCount: number;
 
   constructor(private book: IBook) {
+    this.key = book.key;
     this.title = book.title;
     this.parts = book.parts;
     this.totalChapterCount = this.parts
-      .map(part => part.chapters)
+      .map(part => {
+        part.chapterArray = Array(part.chapters).fill().map((x,i) => return i + 1;);
+        return part.chapters;
+      })
       .reduce((accumulator: number, chapters: number) => accumulator + chapters);
+  }
+
+  getChapterPosition(part: string, chapter: number) {
+    let position = 0;
+    for (let i = 0; i < this.parts.length; i++) {
+      if (this.parts[i].name !== part) {
+        position = position + this.parts[i].chapters;
+      } else {
+        position = position + chapter;
+        break;
+      }
+    }
+    return position;
   }
 }
 
 const BOM: Book = new Book(BOMInfo);
+
+console.log(`Introduction and Witnesses, 1: ${BOM.getChapterPosition('Introduction and Witnesses', 1)}`);
+console.log(`1 Nephi, 1: ${BOM.getChapterPosition('1 Nephi', 1)}`);
+console.log(`Jarom, 1: ${BOM.getChapterPosition('Jarom', 1)}`);
+console.log(`Mosiah, 22: ${BOM.getChapterPosition('Mosiah', 22)}`);
 
 export {
   BOM,

@@ -16,12 +16,12 @@ export class LocalstorageService {
   }
 
   public set(key: string, value: any) {
-    let storageString = localStorage.getItem(this.serviceKey);
+    let storagestring = localStorage.getItem(this.serviceKey);
     let storage: any;
-    if (!storageString) {
+    if (!storagestring) {
       storage = {};
     } else {
-      storage = JSON.parse(storageString);
+      storage = JSON.parse(storagestring);
     }
     storage[key] = value;
     localStorage.setItem(this.serviceKey, JSON.stringify(storage));

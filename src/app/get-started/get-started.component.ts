@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDate, NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 import { LocalstorageService } from '../localstorage.service';
 import { ReadingDataService } from '../reading-data.service';
 import { IBook, IBookProgress } from '../DataStructure';
@@ -13,34 +13,60 @@ declare var location;
 })
 export class GetStartedComponent implements OnInit {
 
-  public goalDate: NgbDateStruct;
+  public startDate: NgbDate;
+  public goalDate: NgbDate;
   public curChapter: number;
-  public selectedBookTitle: String;
+  public selectedBookKey: string;
   public selectedBook: Book;
-  public supported: String[] = SUPPORTED;
+  public supported: {key:string,label:string}[] = SUPPORTED;
+  public minEndDate: NgbDate;
 
   constructor(
     private calendar: NgbCalendar,
     private localstorageService: LocalstorageService,
     private readingDataService: ReadingDataService
-  ) { }
+  ) {
+    this. minEndDate = NgbDate.from({
+     year: new Date().getFullYear(),
+     month: new Date().getMonth() + 1,
+     day: new Date().getDate(),
+    });
+  }
 
   ngOnInit() {
-    // this.readingDataService.progress.subscribe((progress: IBookProgress[]) => {
-    //   console.log(progress);
-    // });
-    this.selectedBookTitle = this.localstorageService.get('selectedBookTitle') || BOM.title;
-    this.loadSelectedBookData(this.selectedBook);
+    this.selectedBookKey = this.localstorageService.get('selectedBookKey') || BOM.key;
+    this.loadSelectedBookData(this.selectedBookKey);
   }
 
-  loadSelectedBookData(selectedBookTitle: String) {
-    this.goalDate = this.readingDataService.getGoalDate(this.selectedBookTitle);
-    this.selectedBook = new Book(BOOKINFO[this.selectedBookTitle]);
-    this.curChapter = this.readingDataService.getCurChapter(this.selectedBookTitle);
+  loadSelectedBookData(selectedBookKey: string) {
+    this.startDate = NgbDate.from(this.readingDataService.getStartDate(this.selectedBookKey));
+    this.goalDate = NgbDate.from(this.readingDataService.getGoalDate(this.selectedBookKey));
+    this.selectedBook = new Book(BOOKINFO[this.selectedBookKey]);
+    this.curChapter = this.readingDataService.getCurChapter(this.selectedBookKey);
   }
 
-  onDateSelect(pickedDate: NgbDateStruct) {
-    this.readingDataService.setGoalDate(pickedDate, this.selectedBookTitle);
+  onDateSelect(pickedDate: NgbDate) {
+    let newDate: NgbDate;
+    if (pickedDate.before(this.startDate)) {
+      this.readingDataService.setGoalDate(this.startDate, this.selectedBookKey);
+      newDate = NgbDate.from(this.startDate);
+    } else {
+      this.readingDataService.setGoalDate(pickedDate, this.selectedBookKey);
+      newDate = NgbDate.from(pickedDate);
+    }
+    this.goalDate = newDate;
+  }
+
+  onStartDateSelect(pickedDate: NgbDate) {
+    let newDate: NgbDate;
+    if (pickedDate.after(this.goalDate)) {
+      this.readingDataService.setStartDate(this.goalDate, this.selectedBookKey);
+      newDate = NgbDate.from(this.goalDate);
+    } else {
+      this.readingDataService.setStartDate(pickedDate, this.selectedBookKey);
+      newDate = NgbDate.from(pickedDate);
+    }
+    this.startDate = newDate;
   }
 
   onClearApp() {
@@ -49,14 +75,28 @@ export class GetStartedComponent implements OnInit {
   }
 
   selectToday() {
-    this.goalDate = this.calendar.getToday();
     this.onDateSelect(this.goalDate);
   }
 
-  selectBook(bookTitle: String) {
-    this.selectedBookTitle = bookTitle;
-    this.localstorageService.set('selectedBookTitle', bookTitle);
-    this.loadSelectedBookData(this.selectedBookTitle);
+  selectTodayStart() {
+    this.onStartDateSelect(this.goalDate);
+  }
+
+  selectBook(bookKey: string) {
+    this.selectedBookKey = bookKey;
+    this.localstorageService.set('selectedBookKey', bookKey);
+    this.loadSelectedBookData(this.selectedBookKey);
+  }
+
+  setProgress(curPosition: number) {
+    this.readingDataService.setCurChapter(curPosition, this.selectedBookKey);
+    this.curChapter = curPosition;
+  }
+
+  pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
 
 }

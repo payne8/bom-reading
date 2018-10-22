@@ -31,17 +31,22 @@ export class ReadingDataService {
   private setupProgress() {
     let self = this;
     let progress: IBookProgress[] = this.storage.get('progress') || [];
-    let currentProgressTitles = progress.map(bookProgress => bookProgress.title);
+    let currentProgressKeys = progress.map(bookProgress => bookProgress.key);
     for (let i in SUPPORTED) {
-      let supportedBookTitle = SUPPORTED[i];
-      if (currentProgressTitles.indexOf(supportedBookTitle) === -1) {
+      let supportedBookKey = SUPPORTED[i].key;
+      if (currentProgressKeys.indexOf(supportedBookKey) === -1) {
         progress.push({
-          title: supportedBookTitle,
+          key: supportedBookKey,
           curChapter: 0,
           goalDate: {
             year: new Date().getFullYear(),
             month: 12,
             day: 31
+          },
+          startDate: {
+            year: new Date().getFullYear(),
+            month: new Date().getMonth() + 1,
+            day: new Date().getDate()
           }
         });
       }
@@ -55,34 +60,42 @@ export class ReadingDataService {
     this._progress$.next(progress);
   }
 
-  public getGoalDate(bookTitle: String=BOM.title) {
-    return this.retriveRequestedBookProperty(bookTitle, 'goalDate');
+  public getGoalDate(bookKey: string=BOM.title) {
+    return this.retriveRequestedBookProperty(bookKey, 'goalDate');
   }
 
-  public setGoalDate(newGoalDate: NgbDateStruct, bookTitle: String=BOM.title) {
-    this.setRequestedBookProperty(bookTitle, 'goalDate', newGoalDate);
+  public setGoalDate(newGoalDate: NgbDateStruct, bookKey: string=BOM.title) {
+    this.setRequestedBookProperty(bookKey, 'goalDate', newGoalDate);
   }
 
-  public getCurChapter(bookTitle: String=BOM.title) {
-    return this.retriveRequestedBookProperty(bookTitle, 'curChapter');
+  public getStartDate(bookKey: string=BOM.title) {
+    return this.retriveRequestedBookProperty(bookKey, 'startDate');
   }
 
-  public setCurChapter(newCurChapter: number, bookTitle: String=BOM.title) {
-    return this.setRequestedBookProperty(bookTitle, 'curChapter', newCurChapter);
+  public setStartDate(newStartDate: NgbDateStruct, bookKey: string=BOM.title) {
+    this.setRequestedBookProperty(bookKey, 'startDate', newStartDate);
   }
 
-  private retriveRequestedBookProperty(bookTitle: String, property: String) {
+  public getCurChapter(bookKey: string=BOM.title) {
+    return this.retriveRequestedBookProperty(bookKey, 'curChapter');
+  }
+
+  public setCurChapter(newCurChapter: number, bookKey: string=BOM.title) {
+    return this.setRequestedBookProperty(bookKey, 'curChapter', newCurChapter);
+  }
+
+  private retriveRequestedBookProperty(bookKey: string, property: string) {
     let requestedBook: IBookProgress = this._progress.find((bookProgress: IBookProgress) => {
-      return bookProgress.title === bookTitle;
+      return bookProgress.key === bookKey;
     });
     if (requestedBook) {
       return requestedBook[property];
     }
   }
 
-  private setRequestedBookProperty(bookTitle: String, property: String, value: any) {
+  private setRequestedBookProperty(bookKey: string, property: string, value: any) {
     let requestedBook: IBookProgress = this._progress.find((bookProgress: IBookProgress) => {
-      return bookProgress.title === bookTitle;
+      return bookProgress.key === bookKey;
     });
     if (requestedBook) {
       requestedBook[property] = value;

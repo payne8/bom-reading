@@ -1,0 +1,30 @@
+.danger-zone {
+  padding: 8px;
+  background: rgba(255,0,0,0.5);
+}
+
+.chapters-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.chapter-container {
+  height: 64px;
+  width: 64px;
+  margin: 4px;
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.date-picking-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.date-pick-child {
+
+}
