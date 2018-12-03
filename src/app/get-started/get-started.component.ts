@@ -21,6 +21,9 @@ export class GetStartedComponent implements OnInit {
   public supported: {key:string,label:string}[] = SUPPORTED;
   public minEndDate: NgbDate;
   public readingDays: IChapter[];
+  public hidePickStartDate: boolean = false;
+  public hidePickDate: boolean = false;
+  public showReset: boolean = false;
 
   constructor(
     private calendar: NgbCalendar,
@@ -97,7 +100,7 @@ export class GetStartedComponent implements OnInit {
     this.curChapter = curPosition;
   }
 
-  pad(n, width, z) {
+  pad(n, width, z="0") {
     z = z || '0';
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
